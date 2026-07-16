@@ -1,18 +1,46 @@
 {
   "titles": [
-    {"page": "inventory", "title": "ADMIN PARADISE"},
-    { "page": "cat", "title": "CAT PARADISE" },
-    { "page": "dog", "title": "DOG PARADISE" },
-    { "page": "fish", "title": "FISH PARADISE" },
-    { "page": "bird", "title": "BIRD PARADISE" }
+    {
+      "page": "inventory",
+      "title": "ADMIN PARADISE"
+    },
+    {
+      "page": "cat",
+      "title": "CAT PARADISE"
+    },
+    {
+      "page": "dog",
+      "title": "DOG PARADISE"
+    },
+    {
+      "page": "fish",
+      "title": "FISH PARADISE"
+    },
+    {
+      "page": "bird",
+      "title": "BIRD PARADISE"
+    }
   ],
   "nav": [
-    { "label": "Inventory", "href": "Inventory.html"},
-    { "label": "Cat Paradise", "href": "ShopPage.html?page=cat" },
-    { "label": "Dog Paradise", "href": "ShopPage.html?page=dog" },
-    { "label": "Fish Paradise", "href": "ShopPage.html?page=fish" },
-    { "label": "Bird Paradise", "href": "ShopPage.html?page=bird" }
+    {
+      "label": "Inventory",
+      "href": "/admin"
+    },
+    {
+      "label": "Cat Paradise",
+      "href": "/shop/cat"
+    },
+    {
+      "label": "Dog Paradise",
+      "href": "/shop/dog"
+    },
+    {
+      "label": "Fish Paradise",
+      "href": "/shop/fish"
+    },
+    {
+      "label": "Bird Paradise",
+      "href": "/shop/bird"
+    }
   ]
 }
-
-   
