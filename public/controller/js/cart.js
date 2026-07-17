@@ -1,3 +1,5 @@
+// cart.js
+
 // get cart from localStorage
 function getCart() {
     let startCart = localStorage.getItem('myCart'); 
@@ -17,7 +19,6 @@ function addToCart(id, name, price, image) {
     let cart = getCart();
     let item = null;
 
-    // หาว่ามีสินค้านี้อยู่แล้วไหม
     for (let i = 0; i < cart.length; i++) {
         if (cart[i].id === id) {
             item = cart[i];
@@ -25,23 +26,15 @@ function addToCart(id, name, price, image) {
         }
     }
 
-    if (item) {  // ถ้ามีแล้ว เพิ่มจำนวน 
+    if (item) {  
         item.qty = item.qty + 1;
-    } else { // ถ้ายังไม่มี เพิ่มสินค้าใหม่
-        cart.push({ id: id, name: name, price: price, qty: 1, image: image  });
+    } else { 
+        cart.push({ id: id, name: name, price: price, qty: 1, image: image });
     }
 
-    // บันทึกลง localStorage
     localStorage.setItem('myCart', JSON.stringify(cart));
-
-    //  อัปเดตหน้าจอรถเข็น
     renderCart();
 }
-//truncate text
-function truncateText(text, maxLength) {
-    if (!text || text.length <= maxLength) return text;
-    return text.slice(0, maxLength) + '...';
-  }
 
 // render cart
 function renderCart() {
@@ -51,26 +44,22 @@ function renderCart() {
     let total = 0;
     let html = '';
 
-
-    // ถ้าไม่มีสินค้า แสดงข้อความว่าง
     if (cart.length === 0) {
-        cartItems.innerHTML = '<p class="cart-empty">Your cart is empty</p>'; //inner html เพราะมี <>
-        // cartItems.textContent= 'Your cart is empty';
-        cartTotal.textContent = '฿0.00'; //text content เพราะว่าเขียนtextตรงๆได้เลย
+        cartItems.innerHTML = '<p class="cart-empty">Your cart is empty</p>';
+        cartTotal.textContent = '฿0.00';
         return;
     }
 
-    // วนลูปสร้าง HTML แต่ละสินค้า
     for (let i = 0; i < cart.length; i++) {
         let item = cart[i];
         let lineTotal = item.price * item.qty;
         total += lineTotal;
 
-        let truncatedName = truncateText(item.name, 20);
         html += '<div class="cart-row">' +
             '<div class="cart-product">' +
             '<img src="' + item.image + '" alt="' + item.name + '">' +
-            '<p class="cart-product-name">' + truncatedName + '</p>' +
+            // ใช้คำสั่ง shortText จากไฟล์ shop.js ได้ทันทีถ้าวางลำดับสคริปต์ถูกต้อง
+            '<p class="cart-product-name">' + shortText(item.name, 30) + '</p>' + 
             '</div>' +
             '<div class="cart-qty">' +
             '<button type="button" onclick="changeQty(' + item.id + ', -1)">-</button>' +
@@ -81,16 +70,28 @@ function renderCart() {
             '</div>';
     }
 
-    // แสดงผลลงหน้าจอ
     cartItems.innerHTML = html;
     cartTotal.textContent = '฿' + total.toFixed(2);
 }
 
+// function ปุ่ม + -
+function changeQty(id, amount) {
+    let cart = getCart();
 
+    for (let i = 0; i < cart.length; i++) {
+        if (cart[i].id === id) {
+            cart[i].qty = cart[i].qty + amount;
 
+            if (cart[i].qty <= 0) {
+                cart.splice(i, 1); 
+            }
+            break; 
+        }
+    }
 
+    localStorage.setItem('myCart', JSON.stringify(cart));
+    renderCart();
+}
 
+// รันหน้าจอรถเข็นทันทีเมื่อโหลดหน้าเว็บ
 renderCart();
-
-
-

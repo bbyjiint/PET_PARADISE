@@ -1,80 +1,93 @@
+// shop.js
+let currentProductList = [];
+
+// ตัวหนังสือสั้นๆ 
+function shortText(text, max) {
+    if (!text) return "";
+    if (text.length > max) return text.slice(0, max) + "...";
+    return text;
+}
+
 function loadShop(page) {
-    console.log(page);
     fetch('/product/' + page)
-        .then(function (res) {
-            if (!res.ok) {
+        .then(function (response) {
+            if (!response.ok) {
                 throw new Error('Failed to load products');
             }
-            return res.json();
+            return response.json();
         })
-        .then(function (products) {
-            if (products.length === 0) {
+        .then(function (productsData) {
+            currentProductList = productsData;
+
+            if (productsData.length === 0) {
                 document.getElementById('mainContent').innerHTML = '<p class="shopNothing">No products for ' + page + '</p>';
                 return;
             }
-
-            // สร้างการ์ดสินค้าทีละชิ้น
-            let html = '<div class="productCard">';
-            for (let i = 0; i < products.length; i++) {
-                let p = products[i];
-                let truncatedName = truncateText(p.name, 20);
-                // let truncatedDescription = truncateText(p.description, 20);
-                html += '<article class="productCardInfo">' +
+            let html = '<section class="products">';
+            for (let i = 0; i < currentProductList.length; i++) {
+                let p = currentProductList[i];
+                
+                // แก้ไขตรงนี้: ส่งข้อมูลครบชุดเข้าไปในฟังก์ชัน addToCart ตัวแปรที่เป็น Text ต้องใส่เครื่องหมาย ' ครอบไว้ด้วย
+                html =
+                    html +
+                    '<article class="cardProduct">' +
+                    '<div class="card-img" onclick="openModal(' + p.idproduct + ')" style="cursor:pointer">' +
                     '<img src="' + p.image + '" alt="' + p.name + '">' +
-                    '<h3>' + truncatedName + '</h3>' +
-                    '<p class="productType">' + p.type + '</p>' +
-                    '<p class="productPrice" id="price-' + p.idproduct + '">฿' + p.price + '</p>' +
-                    '<p class="productStock">Stock: ' + p.stock + '</p>' +
-                    '<p class="productDescription">' + p.description + '</p>' +
-                    // '<input type="number" id="newPrice' + p.idproduct + '" min="0" value="' + p.price + '">' +
-                    // '<button type="button" onclick="updatePrice(' + p.idproduct + ')">Submit</button>' +
-                    '<button type="button" class="save-btn"  onclick="addToCart(' + p.idproduct + ', \'' + p.name.replace(/'/g, "\\'") + '\', ' + p.price + ', \'' + p.image + '\')"><i class="fa-solid fa-bag-shopping"></i> Add to cart</button>' +
+                    '<div class="middle"><div>more details</div></div>' +
+                    '</div>' +
+                    '<div class="card-info">' +
+                    '<h3>' + shortText(p.name, 30) + '</h3>' +
+                    '<p>' + shortText(p.description, 50) + '</p>' +
+                    '<div class="card-bottom">' +
+                    '<span class="price">฿' + p.price + '</span>' +
+                    '<button class="add-btn" type="button" onclick="addToCart(' + p.idproduct + ', \'' + p.name + '\', ' + p.price + ', \'' + p.image + '\')">' +
+                    '<i class="fa-solid fa-cart-plus"></i> Add to Cart' +
+                    '</button>' +
+                    '</div>' +
+                    '</div>' +
                     '</article>';
             }
-            html += '</div>';
+            html += '</section>';
             document.getElementById('mainContent').innerHTML = html;
-        });
+        })
 }
 
+// เปิดดู Description
+function openModal(id) {
+    let p = null;
+    for (let i = 0; i < currentProductList.length; i++) {
+        if (currentProductList[i].idproduct === id) {
+            p = currentProductList[i];
+            break;
+        }
+    }
+    if (!p) return;
 
-// // เปลี่ยนราคา
-// function updatePrice(id) {
-//     let newPrice = document.getElementById('newPrice' + id).value;
-//     console.log('updatePrice:', id, newPrice);
+    document.getElementById('modalBox').innerHTML =
+        '<button class="modal-close" onclick="closeModal()">✕</button>' +
+        '<img class="modal-img" src="' + p.image + '" alt="' + p.name + '">' +
+        '<div class="modal-body">' +
+        '<span class="modal-type">' + p.type + '</span>' +
+        '<h2 class="modal-name">' + p.name + '</h2>' +
+        '<p class="modal-price">฿' + p.price + '</p>' +
+        '<p class="modal-stock">Stock: ' + p.stock + ' items</p>' +
+        '<p class="modal-desc">' + p.description + '</p>' +
+        '</div>';
 
-//     fetch('/product/updatePrice', {
-//         method: 'POST',
-//         body: JSON.stringify({ id: id, newPrice: newPrice }),
-//         headers: { 'Content-Type': 'application/json', },
-//     })
-//         .then(function (res) {
-//             if (!res.ok) {
-//                 throw new Error('Failed to update price');
-//             }
-//             return res.text();
-//         })
-//         .then(function () {
-//             document.getElementById('price-' + id).textContent = '฿' + newPrice;
-//             console.log('Price updated');
-//         })
-// }
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
 
-// function updatePrice(id) {
-//     let newPrice = document.getElementById('newPrice' + id).value;
-//     // console.log('updatePrice:', id, newPrice);
+function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
 
-//     fetch('/product/' + id + '/newPrice/' + newPrice, { method: 'POST' })
-//         .then(function (res) {
-//             if (!res.ok) {
-//                 throw new Error('Failed to update price');
-//             }
-//             return res.text(); //
-//         })
-//         .then(function () {
-//             document.getElementById('price-' + id).textContent = '฿' + newPrice;
-//             console.log('Price updated');
-//         })
-// }
+document.getElementById('modal').addEventListener('click', function (e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
 
 loadShop(getCurrentPage());
-

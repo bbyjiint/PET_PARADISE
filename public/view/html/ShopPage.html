@@ -26,8 +26,8 @@
     </div>
     <div class="cart-columns">
       <span>Product</span>
-      <span>Quantity</span>
-      <span>Total</span>
+      <span class="cart-col-qty">Quantity</span>
+      <span class="cart-col-total ">Total</span>
     </div>
     <div id="cartItems" class="order-items"></div>
     <div class="cart-footer">
@@ -36,12 +36,17 @@
     </div>
   </aside>
 
+<div id="modal" class="modal">
+    <div id="modalBox" class="modal-box"></div>
+</div>
+
   <!--header-->
   <script src="/controller/js/header.js"></script>
-  <!--shop-->
+  <!-- shop-->
   <script src="/controller/js/shop.js"></script>
   <!--cart-->
-  <script src="/controller/js/cart.js"></script>
+  <script src="/controller/js/cart.js"></script> 
+
 </body>
 
 </html>

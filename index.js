@@ -19,6 +19,6 @@ app.use('/inventory', inventoryRoutes);
 app.use('/', pageRoutes);
 
 // start the server
-app.listen(3000, function () {
-    console.log('Server is running on port 3000');
+app.listen(3002, function () {
+    console.log('Server is running on port 3002');
 });
