@@ -1,8 +1,6 @@
-// cart.js
-
 // get cart from localStorage
 function getCart() {
-    let startCart = localStorage.getItem('myCart'); 
+    let startCart = localStorage.getItem('myCart');
     let cart;
 
     if (startCart === null) {
@@ -11,11 +9,11 @@ function getCart() {
         cart = JSON.parse(startCart);
     }
 
-    return cart; 
+    return cart;
 }
 
 // function add product to cart
-function addToCart(id, name, price, image) {
+function addToCart(id) {
     let cart = getCart();
     let item = null;
 
@@ -26,14 +24,30 @@ function addToCart(id, name, price, image) {
         }
     }
 
-    if (item) {  
+    if (item) {
         item.qty = item.qty + 1;
-    } else { 
-        cart.push({ id: id, name: name, price: price, qty: 1, image: image });
-    }
+        localStorage.setItem('myCart', JSON.stringify(cart));
+        renderCart();
 
-    localStorage.setItem('myCart', JSON.stringify(cart));
-    renderCart();
+    } else {
+        fetch('/product/id/' + id)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (productData) {
+                let p = productData[0];
+
+                cart.push({
+                    id: p.idproduct,
+                    name: p.name,
+                    price: p.price,
+                    qty: 1,
+                    image: p.image
+                });
+                localStorage.setItem('myCart', JSON.stringify(cart));
+                renderCart();
+            });
+    }
 }
 
 // render cart
@@ -53,45 +67,51 @@ function renderCart() {
     for (let i = 0; i < cart.length; i++) {
         let item = cart[i];
         let lineTotal = item.price * item.qty;
-        total += lineTotal;
+        total = total + lineTotal;
 
         html += '<div class="cart-row">' +
             '<div class="cart-product">' +
             '<img src="' + item.image + '" alt="' + item.name + '">' +
-            // ใช้คำสั่ง shortText จากไฟล์ shop.js ได้ทันทีถ้าวางลำดับสคริปต์ถูกต้อง
-            '<p class="cart-product-name">' + shortText(item.name, 30) + '</p>' + 
+            '<p class="cart-product-name">' + shortText(item.name, 30) + '</p>' +
             '</div>' +
             '<div class="cart-qty">' +
-            '<button type="button" onclick="changeQty(' + item.id + ', -1)">-</button>' +
+            '<button type="button" onclick="minusFood(' + i + ')">-</button>' +
             '<span>' + item.qty + '</span>' +
-            '<button type="button" onclick="changeQty(' + item.id + ', 1)">+</button>' +
+            '<button type="button" onclick="plusFood(' + i + ')">+</button>' +
             '</div>' +
             '<div class="cart-line-total">฿' + lineTotal.toFixed(2) + '</div>' +
             '</div>';
     }
 
-    cartItems.innerHTML = html;
-    cartTotal.textContent = '฿' + total.toFixed(2);
-}
-
-// function ปุ่ม + -
-function changeQty(id, amount) {
-    let cart = getCart();
-
-    for (let i = 0; i < cart.length; i++) {
-        if (cart[i].id === id) {
-            cart[i].qty = cart[i].qty + amount;
-
-            if (cart[i].qty <= 0) {
-                cart.splice(i, 1); 
-            }
-            break; 
-        }
+        cartItems.innerHTML = html;
+        cartTotal.textContent = '฿' + total.toFixed(2);
     }
 
-    localStorage.setItem('myCart', JSON.stringify(cart));
-    renderCart();
-}
 
-// รันหน้าจอรถเข็นทันทีเมื่อโหลดหน้าเว็บ
-renderCart();
+    // function ปุ่ม + 
+    function plusFood(i) {
+        let cart = getCart();
+        if (cart[i]) { 
+            cart[i].qty = cart[i].qty + 1; 
+        }
+       
+        localStorage.setItem('myCart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    // function ปุ่ม -
+    function minusFood(i) {
+        let cart = getCart();
+        if (!cart[i]) 
+            return;
+        cart[i].qty = cart[i].qty - 1;
+        
+        if (cart[i].qty <= 0) { 
+            cart.splice(i, 1); //ลบสินค้านั้นออกจากตะกร้าไปเลย 1 รายการ
+        }
+        localStorage.setItem('myCart', JSON.stringify(cart));
+        renderCart();
+    }
+
+
+    renderCart();
