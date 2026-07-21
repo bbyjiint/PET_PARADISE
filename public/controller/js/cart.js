@@ -53,13 +53,13 @@ function addToCart(id) {
 // render cart
 function renderCart() {
     let cart = getCart();
-    let cartItems = document.getElementById('cartItems');
+    let cartItems = document.getElementById('cartItems'); //id is in shoppage.html
     let cartTotal = document.getElementById('cartTotal');
     let total = 0;
     let html = '';
 
     if (cart.length === 0) {
-        cartItems.innerHTML = '<p class="cart-empty">Your cart is empty</p>';
+        cartItems.innerHTML= '<p class="cart-empty">Your cart is empty</p>';
         cartTotal.textContent = '฿0.00';
         return;
     }
@@ -75,43 +75,53 @@ function renderCart() {
             '<p class="cart-product-name">' + shortText(item.name, 30) + '</p>' +
             '</div>' +
             '<div class="cart-qty">' +
-            '<button type="button" onclick="minusFood(' + i + ')">-</button>' +
+            '<button type="button" onclick="minusFood(' + item.id + ')">-</button>' +
             '<span>' + item.qty + '</span>' +
-            '<button type="button" onclick="plusFood(' + i + ')">+</button>' +
+            '<button type="button" onclick="plusFood(' + item.id + ')">+</button>' +
             '</div>' +
             '<div class="cart-line-total">฿' + lineTotal.toFixed(2) + '</div>' +
             '</div>';
     }
 
-        cartItems.innerHTML = html;
+        cartItems.innerHTML  = html;
         cartTotal.textContent = '฿' + total.toFixed(2);
     }
 
 
     // function ปุ่ม + 
-    function plusFood(i) {
-        let cart = getCart();
-        if (cart[i]) { 
-            cart[i].qty = cart[i].qty + 1; 
+ function plusFood(id) {
+    let cart = getCart();
+    
+
+    for (let i = 0; i < cart.length; i++) {
+        if (cart[i].id === id) {
+            cart[i].qty = cart[i].qty + 1;
+            break; // Stop 
         }
-       
-        localStorage.setItem('myCart', JSON.stringify(cart));
-        renderCart();
+    }
+   
+    localStorage.setItem('myCart', JSON.stringify(cart));
+    renderCart();
+}
+    // function ปุ่ม -
+function minusFood(id) {
+    let cart = getCart();
+    
+    for (let i = 0; i < cart.length; i++) {
+        if (cart[i].id === id) {
+            cart[i].qty = cart[i].qty - 1;
+            
+            //ลบออกจากตะกร้า
+            if (cart[i].qty <= 0) {
+                cart.splice(i, 1);
+            }
+            break; // Stop 
+        }
     }
 
-    // function ปุ่ม -
-    function minusFood(i) {
-        let cart = getCart();
-        if (!cart[i]) 
-            return;
-        cart[i].qty = cart[i].qty - 1;
-        
-        if (cart[i].qty <= 0) { 
-            cart.splice(i, 1); //ลบสินค้านั้นออกจากตะกร้าไปเลย 1 รายการ
-        }
-        localStorage.setItem('myCart', JSON.stringify(cart));
-        renderCart();
-    }
+    localStorage.setItem('myCart', JSON.stringify(cart));
+    renderCart();
+}
 
 
     renderCart();
